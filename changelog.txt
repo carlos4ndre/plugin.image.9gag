@@ -5,6 +5,14 @@
 /____/\__, /\__,_/\__, /_/\____/_/
      /____/      /____/
 
+
+-----------------------------------
+
+Version : 0.3.0
+
+* Added vote and search  sections
+* More code refactroolling!
+
 -----------------------------------
 
 Version : 0.2.0
@@ -15,10 +23,12 @@ their list of memes.
 
 -----------------------------------
 
-Verion: 0.1.0
+Version: 0.1.0
 
 * Created menu with Hot, Trending
 Vote, Saves and Search items.
 
 -----------------------------------
+
+
 ~                                     

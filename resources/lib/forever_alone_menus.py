@@ -8,6 +8,7 @@ IMAGE_PATH = xbmc.translatePath('special://home/addons/plugin.image.9gag/resourc
 __settings__ = xbmcaddon.Addon(id='plugin.image.9gag')
 __language__ = __settings__.getLocalizedString
 
+
 class MenuHandler:
 
    	def __init__(self):
@@ -15,58 +16,25 @@ class MenuHandler:
 
 	def display_HOT_menu(self):
 		print 'display_HOT_menu'
-		tags = self.getImageTags('http://9gag.com/')
-		for tag in tags:
-			try:
-				style = tag['style']
-				print style	
-       				title = tag['alt']
-                        	print title
-                        	url = tag['src']
-                        	print url
-
-				listitem = xbmcgui.ListItem( title, iconImage="DefaultPicture.png", thumbnailImage = url )
-				xbmcplugin.addDirectoryItem( handle=int(sys.argv[ 1 ]), url = url, listitem=listitem, isFolder=False)		
-			except:
-				pass
-	        xbmcplugin.endOfDirectory( handle=int( sys.argv[ 1 ] ), succeeded=True )
+		images = self.getImages('http://9gag.com/')
+                for image in images:
+                        self.addImage(image)
+                xbmcplugin.endOfDirectory( handle=int( sys.argv[ 1 ] ), succeeded=True )
 
 
 	def display_TRENDING_menu(self):
 		print 'display_TRENDING_menu'
-                tags = self.getImageTags('http://9gag.com/trending/')
-                for tag in tags:
-                        try:
-                                style = tag['style']
-                                print style
-                                title = tag['alt']
-                                print title
-                                url = tag['src']
-                                print url
-
-                                listitem = xbmcgui.ListItem( title, iconImage="DefaultPicture.png", thumbnailImage = url )
-                                xbmcplugin.addDirectoryItem( handle=int(sys.argv[ 1 ]), url = url, listitem=listitem, isFolder=False)
-                        except:
-                                pass
+                images = self.getImages('http://9gag.com/trending/')
+                for image in images:
+			self.addImage(image)
                 xbmcplugin.endOfDirectory( handle=int( sys.argv[ 1 ] ), succeeded=True )
 
 
 	def display_VOTE_menu(self):
 		print 'display_VOTE_menu'
-                tags = self.getImageTags('http://9gag.com/vote/')
-                for tag in tags:
-                        try:
-                                style = tag['style']
-                                print style
-                                title = tag['alt']
-                                print title
-                                url = tag['src']
-                                print url
-
-                                listitem = xbmcgui.ListItem( title, iconImage="DefaultPicture.png", thumbnailImage = url )
-                                xbmcplugin.addDirectoryItem( handle=int(sys.argv[ 1 ]), url = url, listitem=listitem, isFolder=False)
-                        except:
-                                pass
+                images = self.getImages('http://9gag.com/vote/')
+                for image in images:
+                        self.addImage(image)
                 xbmcplugin.endOfDirectory( handle=int( sys.argv[ 1 ] ), succeeded=True )
 
 
@@ -75,6 +43,12 @@ class MenuHandler:
 
 	def display_SEARCH_menu(self):
 		print 'display_SEARCH_menu'
+		searchTrollword = self.getKeyboard()
+		images = self.getImages('http://9gag.com/search?query='+searchTrollword)
+                for image in images:
+                        self.addImage(image)
+                xbmcplugin.endOfDirectory( handle=int( sys.argv[ 1 ] ), succeeded=True )
+
 
 	def display_MOTHER_OF_MENUS(self):
 		print 'display_MOTHER_OF_MENUS'
@@ -87,7 +61,7 @@ class MenuHandler:
 
 
 	##
-	# handy funtions to create menus
+	# handy functions to create menus
 	#
 
 	def addDir(self,name,mode,iconimage):
@@ -100,8 +74,30 @@ class MenuHandler:
 			isFolder=True)
     		return ok
 
-	def getImageTags(self,url):
-		page = urllib2.urlopen(url)
-		soup = BeautifulStoneSoup(page)
- 		tags = soup.findAll('img', {'src' : re.compile(r'(jpe?g)|(png)$')})
-		return tags
+	def addImage(self,image):
+		try:
+			title = image['alt']
+			url = image['src']
+		
+			print 'title='+title+'\nurl='+url
+
+                        listitem = xbmcgui.ListItem( title, iconImage="DefaultPicture.png", thumbnailImage = url )
+                        xbmcplugin.addDirectoryItem( handle=int(sys.argv[ 1 ]), url = url, listitem=listitem, isFolder=False)
+                except:
+                        pass
+
+	def getImages(self,url):
+		# get all memes' url
+		gag_page = urllib2.urlopen(url)
+		soup = BeautifulStoneSoup(gag_page)
+		gag_images = soup.findAll('img', {'src' : re.compile('http://(.*)jpe?g$')})
+
+		return gag_images
+
+       	def getKeyboard(self):
+                keyboard = xbmc.Keyboard('','Enter u gag')
+                keyboard.doModal()
+                if (keyboard.isConfirmed()):
+                        return keyboard.getText()
+                else:
+                        return ''
